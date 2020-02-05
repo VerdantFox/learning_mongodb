@@ -1,0 +1,9 @@
+# These are a list of commands for connecting to the databases in the course
+
+## Connect to the pre-loaded course databases
+
+mongo "mongodb://cluster0-shard-00-00-jxeqq.mongodb.net:27017,cluster0-shard-00-01-jxeqq.mongodb.net:27017,cluster0-shard-00-02-jxeqq.mongodb.net:27017/100YWeatherSmall?replicaSet=Cluster0-shard-0" --authenticationDatabase admin --ssl --username m001-student --password m001-mongodb-basics
+
+## Connect to my Sandbox database
+
+mongo "mongodb+srv://sandbox-5elsc.mongodb.net/test"  --username m001-student --password m001-mongodb-basics
