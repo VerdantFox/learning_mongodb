@@ -1,0 +1,10 @@
+net:
+  bindIp: 192.168.103.100,localhost
+  port: 27000
+storage:
+  dbPath: /var/mongodb/db/
+systemLog:
+  path: /home/vagrant/second_mongod/mongod.log
+  destination: file
+processManagement:
+  fork: true
