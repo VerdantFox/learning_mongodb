@@ -11,4 +11,4 @@ import pytest
 @pytest.mark.timeouts
 def test_proper_type(client):
     (_, w_concern, _) = get_configuration()
-    assert w_concern._WriteConcern__document['wtimeout'] == 2500
+    assert w_concern._WriteConcern__document["wtimeout"] == 2500

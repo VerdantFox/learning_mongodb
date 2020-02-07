@@ -25,12 +25,10 @@ class MongoJsonEncoder(JSONEncoder):
 def create_app():
 
     APP_DIR = os.path.abspath(os.path.dirname(__file__))
-    STATIC_FOLDER = os.path.join(APP_DIR, 'build/static')
-    TEMPLATE_FOLDER = os.path.join(APP_DIR, 'build')
+    STATIC_FOLDER = os.path.join(APP_DIR, "build/static")
+    TEMPLATE_FOLDER = os.path.join(APP_DIR, "build")
 
-    app = Flask(__name__, static_folder=STATIC_FOLDER,
-                template_folder=TEMPLATE_FOLDER,
-                )
+    app = Flask(__name__, static_folder=STATIC_FOLDER, template_folder=TEMPLATE_FOLDER,)
     CORS(app)
     app.json_encoder = MongoJsonEncoder
     app.register_blueprint(movies_api_v1)
@@ -40,17 +38,17 @@ def create_app():
     @jwt.user_claims_loader
     def add_claims(identity):
         return {
-            'user': identity,
+            "user": identity,
         }
 
-    app.config['JWT'] = jwt
-    app.config['BCRYPT'] = Bcrypt(app)
-    app.config['CLAIMS_LOADER'] = add_claims
-    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=30)
+    app.config["JWT"] = jwt
+    app.config["BCRYPT"] = Bcrypt(app)
+    app.config["CLAIMS_LOADER"] = add_claims
+    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(days=30)
 
-    @app.route('/', defaults={'path': ''})
-    @app.route('/<path:path>')
+    @app.route("/", defaults={"path": ""})
+    @app.route("/<path:path>")
     def serve(path):
-        return render_template('index.html')
+        return render_template("index.html")
 
     return app

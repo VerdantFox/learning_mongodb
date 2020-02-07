@@ -6,16 +6,12 @@ from pymongo.results import UpdateResult
 @pytest.mark.user_preferences
 def test_invalid_user_should_not_have_preferences(client):
     # delete the test user if it exists
-    delete_user('foobaz@bar.com')
-    preferences = {
-        "color": "green",
-        "favorite_letter": "q",
-        "favorite_number": 42
-    }
+    delete_user("foobaz@bar.com")
+    preferences = {"color": "green", "favorite_letter": "q", "favorite_number": 42}
 
-    result = update_prefs('foobaz@bar.com', preferences)
+    result = update_prefs("foobaz@bar.com", preferences)
 
-    assert result.get('error', None) is not None
+    assert result.get("error", None) is not None
     assert isinstance(result, UpdateResult) is False
 
 
@@ -36,7 +32,7 @@ def test_valid_user_preferences(client):
     preferences = {
         "favorite_cast_member": "Goldie Hawn",
         "favorite_genre": "Comedy",
-        "preferred_ratings": ["G", "PG", "PG-13"]
+        "preferred_ratings": ["G", "PG", "PG-13"],
     }
 
     # update user preferences
@@ -46,13 +42,13 @@ def test_valid_user_preferences(client):
 
     # get the user
     user = get_user("foobaz@bar.com")
-    assert user.get('preferences') is not None
+    assert user.get("preferences") is not None
     new_preferences = {
         "favorite_cast_member": "Daniel Day-Lewis",
         "favorite_genre": "Drama",
-        "preferred_ratings": ["R"]
+        "preferred_ratings": ["R"],
     }
-    result = update_prefs(user.get('email'), new_preferences)
+    result = update_prefs(user.get("email"), new_preferences)
     assert result.matched_count == 1
     assert result.modified_count == 1
     user = get_user("foobaz@bar.com")

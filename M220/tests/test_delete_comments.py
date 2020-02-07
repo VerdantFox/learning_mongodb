@@ -14,21 +14,12 @@ test_user = {
     "email": "foobar@baz.com",
 }
 
-fake_user = {
-    "name": "barfoo",
-    "email": "baz@foobar.com"
-}
+fake_user = {"name": "barfoo", "email": "baz@foobar.com"}
 # The Martian
 movie_id = "573a13b0f29313caabd3408e"
 now = datetime.now()
-comment = {
-    'text': 'fe-fi-fo-fum',
-    'id': ''
-}
-comment_update = {
-    'text': 'frobscottle',
-    'id': ''
-}
+comment = {"text": "fe-fi-fo-fum", "id": ""}
+comment_update = {"text": "frobscottle", "id": ""}
 user = User(test_user)
 n_user = User(fake_user)
 
@@ -39,20 +30,20 @@ n_user = User(fake_user)
 def test_add_comment_should_be_implemented(client):
     # we need to add a comment
     # this test serves to do that
-    result = add_comment(movie_id, user, comment['text'], now)
-    comments = get_movie(movie_id).get('comments')
-    assert comments[0].get('_id') == result.inserted_id
-    assert comments[0].get('text') == comment['text']
-    comment['id'] = result.inserted_id
+    result = add_comment(movie_id, user, comment["text"], now)
+    comments = get_movie(movie_id).get("comments")
+    assert comments[0].get("_id") == result.inserted_id
+    assert comments[0].get("text") == comment["text"]
+    comment["id"] = result.inserted_id
 
 
 @pytest.mark.delete_comments
 def test_should_not_delete_comment_if_email_does_not_match(client):
-    result = delete_comment(comment['id'], "fakeemail@email.com")
-    assert result.raw_result.get('n') == 0
+    result = delete_comment(comment["id"], "fakeemail@email.com")
+    assert result.raw_result.get("n") == 0
 
 
 @pytest.mark.delete_comments
 def test_delete_comment_should_delete_if_email_is_owner(client):
-    result = delete_comment(comment['id'], test_user['email'])
-    assert result.raw_result.get('n') == 1
+    result = delete_comment(comment["id"], test_user["email"])
+    assert result.raw_result.get("n") == 1
