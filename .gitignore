@@ -1,3 +1,7 @@
 .vagrant/
 dataset/
-
+venv/
+__pycache__/
+.cache/
+.vscode/
+.ipynb_checkpoints/
