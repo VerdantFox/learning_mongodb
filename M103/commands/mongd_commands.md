@@ -5,6 +5,9 @@ mongod
 ps -ef | grep mongod
 kill <pid>
 
+# exit mongo w/o kill
+printf "use admin\ndb.shutdownServer()" | mongo --port 27000 -u m103-admin -p m103-pass
+
 ## added useful flags
 --port arg      - specify port number - 27017 by default
 --bind_ip arg   - comma separated list of ip addresses to listen on - localhost by default
