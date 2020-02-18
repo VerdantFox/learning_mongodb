@@ -1,6 +1,6 @@
 .vagrant/
 dataset/
-venv/
+*venv*/
 __pycache__/
 .cache/
 .vscode/

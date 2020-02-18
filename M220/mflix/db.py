@@ -256,15 +256,29 @@ def get_movie(id):
         Embed the joined comments in a new field called "comments".
         """
 
-        # TODO: Get Comments
-        # Implement the required pipeline.
-        pipeline = [{"$match": {"_id": ObjectId(id)}}]
+        pipeline = [
+            {"$match": {"_id": ObjectId(id)}},
+            {
+                "$lookup": {
+                    "from": "comments",
+                    "let": {"id": "$_id"},
+                    "pipeline": [
+                        {"$match": {"$expr": {"$eq": ["$movie_id", "$$id"]}}},
+                        {"$sort": {"date": -1}},
+                    ],
+                    "as": "comments",
+                }
+            },
+        ]
 
         movie = db.movies.aggregate(pipeline).next()
         return movie
 
     # TODO: Error Handling
     # If an invalid ID is passed to `get_movie`, it should return None.
+    except InvalidId:
+        return None
+
     except (StopIteration) as _:
 
         """
@@ -322,7 +336,15 @@ def add_comment(movie_id, user, comment, date):
     """
     # TODO: Create/Update Comments
     # Construct the comment document to be inserted into MongoDB.
-    comment_doc = {"some_field": "some_value"}
+    comment_doc = {
+        "name": user.name,
+        "email": user.email,
+        "movie_id": ObjectId(movie_id),
+        "text": comment,
+        "date": date,
+    }
+    print("comment_doc =", comment_doc)
+
     return db.comments.insert_one(comment_doc)
 
 
@@ -336,7 +358,8 @@ def update_comment(comment_id, user_email, text, date):
     # Use the user_email and comment_id to select the proper comment, then
     # update the "text" and "date" of the selected comment.
     response = db.comments.update_one(
-        {"some_field": "some_value"}, {"$set": {"some_other_field": "some_other_value"}}
+        {"_id": ObjectId(comment_id), "email": user_email,},
+        {"$set": {"text": text, "date": date,}},
     )
 
     return response
@@ -357,7 +380,11 @@ def delete_comment(comment_id, user_email):
 
     # TODO: Delete Comments
     # Use the user_email and comment_id to delete the proper comment.
-    response = db.comments.delete_one({"_id": ObjectId(comment_id)})
+    query = {
+        "_id": ObjectId(comment_id),
+        "email": user_email,
+    }
+    response = db.comments.delete_one(query)
     return response
 
 
@@ -406,11 +433,7 @@ def add_user(name, email, hashedpw):
         # TODO: Durable Writes
         # Use a more durable Write Concern for this operation.
         db.users.with_options(write_concern=WriteConcern("majority")).insert_one(
-            {
-                "name": name,
-                "email": email,
-                "password": hashedpw,
-            },
+            {"name": name, "email": email, "password": hashedpw,},
         )
         return {"success": True}
     except DuplicateKeyError:
@@ -430,9 +453,7 @@ def login_user(email, jwt):
         # matching the "user_id" field with the email passed to this function.
 
         db.sessions.update_one(
-            {"user_id": email},
-            {"$set": {"jwt": jwt, "user_id": email}},
-            upsert=True,
+            {"user_id": email}, {"$set": {"jwt": jwt, "user_id": email}}, upsert=True,
         )
         return {"success": True}
     except Exception as e:
@@ -506,8 +527,7 @@ def update_prefs(email, prefs):
         # TODO: User preferences
         # Use the data in "prefs" to update the user's preferences.
         response = db.users.update_one(
-            {"some_field": "some_value"},
-            {"$set": {"some_other_field": "some_other_value"}},
+            {"email": email}, {"$set": {"preferences": prefs}},
         )
         if response.matched_count == 0:
             return {"error": "no user found"}
@@ -531,11 +551,34 @@ def most_active_commenters():
 
     No field projection necessary.
     """
+    """
+    comments
+
+    _id: 5a9427648b0beebeb69579cc
+    name: "Andrea Le"
+    email: "andrea_le@fakegmail.com"
+    movie_id: 573a1390f29313caabcd418c
+    text: "Rem officiis eaque repellendus amet eos doloribus. Porro dolor volupta..."
+    date: 2012-03-26T23:20:16.000+00:00
+
+    users
+
+    _id: 59b99db4cfa9a34dcd7885b6
+    name: "Ned Stark"
+    email: "sean_bean@gameofthron.es"
+    password: "$2b$12$UREFwsRUoyF0CRqGNK0LzO0HM/jLhgUCNNIJ9RJAqMUQ74crlJ1Vu
+    """
+
     # TODO: User Report
     # Return the 20 users who have commented the most on MFlix.
-    pipeline = []
+    pipeline = [
+        {"$group": {"_id": "$email", "count": {"$sum": 1}}},
+        {"$sort": {"count": -1}},
+        {"$limit": 20},
+    ]
 
-    rc = db.comments.read_concern  # you may want to change this read concern!
+    # rc = db.comments.read_concern  # you may want to change this read concern!
+    rc = ReadConcern("majority")
     comments = db.comments.with_options(read_concern=rc)
     result = comments.aggregate(pipeline)
     return list(result)
